@@ -1,65 +1,39 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[25]:
-
-
-with open(".env", "w") as f: #automatically writes the API key to a .env file (store environment variables, like api keys)
-    f.write("OPENAI_API_KEY=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\n")
-
-
-
-# In[35]:
-
-
-import os #returns current working directory
-os.getcwd()
-
-
-# In[27]:
-
-
 import streamlit as st
 import openai
 import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-#debugging to fix file structure
+# Debug info (only visible in logs)
 print("Running labchat.py from:", os.path.abspath(__file__))
 
+# Load .env file securely
 env_path = Path(__file__).resolve().parent / ".env"
 print("Looking for .env file at:", env_path)
+load_dotenv(dotenv_path=env_path)
 
-# ✅ Load from that specific path
-loaded = load_dotenv(dotenv_path=env_path)
-print("load_dotenv() success:", loaded)
+# Set API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
+print("API key loaded:", "Yes" if openai.api_key else "No")
 
-# Load API key from .env
-
-api_key = os.getenv("OPENAI_API_KEY")
-print("API key from .env:", api_key)  # Debug line
-openai.api_key = api_key
-
-# Streamlit page setup
+# Streamlit app setup
 st.set_page_config(page_title="LabChat", layout="centered")
-st.title("               🧿  🧿  LabChat 🧿  🧿 ")
+st.title("🧿  LabChat — Your Smart Lab Assistant 🧿")
 
-# Chat history stored in session state
+# Initialize chat session
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "system", "content": "You are a helpful assistant for our company."}]
+    st.session_state.messages = [
+        {"role": "system", "content": "You are a helpful assistant for our company."}
+    ]
 
-# Show previous messages
+# Display chat history
 for msg in st.session_state.messages[1:]:
     speaker = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
     st.markdown(f"**{speaker}:** {msg['content']}")
 
-# Input field
-user_input = st.text_input("Type your message:", key="user_input")
-
-
-if user_input:
-    st.session_state.messages.append({"role": "user", "content": user_input})
+# Chat input box
+if prompt := st.chat_input("Ask me something"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -68,14 +42,3 @@ if user_input:
 
     reply = response.choices[0].message["content"]
     st.session_state.messages.append({"role": "assistant", "content": reply})
-
-    st.session_state.user_input = ""  # ✅ now this is safe
-    st.rerun()
-
-
-
-# In[ ]:
-
-
-
-
