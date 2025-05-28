@@ -57,11 +57,9 @@ for msg in st.session_state.messages[1:]:
 # Input field
 user_input = st.text_input("Type your message:", key="input")
 
-# When user sends a message
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # Get response from OpenAI
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=st.session_state.messages
@@ -70,7 +68,7 @@ if user_input:
     reply = response.choices[0].message["content"]
     st.session_state.messages.append({"role": "assistant", "content": reply})
 
-    # Refresh the UI to show updated conversation
+    st.session_state.input = ""  # Clear the field
     st.rerun()
 
 
