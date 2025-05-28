@@ -71,7 +71,8 @@ if user_input:
     st.session_state.messages.append({"role": "assistant", "content": reply})
 
     # Refresh the UI to show updated conversation
-    st.experimental_rerun()
+    st.rerun()
+
 
 
 # In[ ]:
