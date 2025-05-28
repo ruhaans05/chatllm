@@ -32,6 +32,7 @@ prompt = st.chat_input("Ask me something")
 # Store prompt for next rerun
 if prompt:
     st.session_state.pending_user_input = prompt
+    st.rerun()
 
 # Handle stored prompt
 if "pending_user_input" in st.session_state:
