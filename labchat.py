@@ -55,7 +55,8 @@ for msg in st.session_state.messages[1:]:
     st.markdown(f"**{speaker}:** {msg['content']}")
 
 # Input field
-user_input = st.text_input("Type your message:", key="input")
+user_input = st.text_input("Type your message:", key="user_input")
+
 
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
@@ -68,7 +69,7 @@ if user_input:
     reply = response.choices[0].message["content"]
     st.session_state.messages.append({"role": "assistant", "content": reply})
 
-    st.session_state.input = ""  # Clear the field
+    st.session_state.user_input = ""  # ✅ now this is safe
     st.rerun()
 
 
