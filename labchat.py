@@ -18,8 +18,17 @@ st.title("🧿  LabChat — Your Smart Lab Assistant 🧿")
 # Initialize chat state
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "You are a helpful assistant for our company."}
-    ]
+    {"role": "system", "content": (
+        "You are LabChat — an intelligent, helpful assistant trained to support users with workplace tasks, questions, and ideas. "
+        "Stay friendly and professional, but speak naturally — like a sharp coworker, not a robot. "
+        "Aim to make every reply feel useful, productive, and tied to work context — even if subtly. "
+        "Avoid repeating the same phrases or format across replies. Be helpful without over-explaining or sounding scripted. "
+        "Do not constantly say your name unless asked; instead, weave in your purpose and role naturally."
+    )}
+
+
+]
+
 
 # Display chat history
 for msg in st.session_state.messages[1:]:
@@ -42,6 +51,7 @@ if "pending_user_input" in st.session_state:
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=st.session_state.messages
+        
     )
 
     reply = response.choices[0].message["content"]
