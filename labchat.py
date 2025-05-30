@@ -26,6 +26,8 @@ except Exception as e:
     st.session_state.df = None
     st.error(f"⚠️ Could not load dataset: {e}")
 
+st.write("✅ Loaded DataFrame shape:", df.shape)
+
 # === Initialize chat memory ===
 if "messages" not in st.session_state:
     st.session_state.messages = [
