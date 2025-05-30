@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 import pandas as pd
+import re
 
 # === Load API Key ===
 env_path = Path(__file__).resolve().parent / ".env"
@@ -61,15 +62,13 @@ def try_dataset_lookup(user_input):
     if df is None:
         return None
 
-    user_input_lower = user_input.lower()
+    user_words = set(word.strip().lower() for word in re.findall(r'\b\w+\b', user_input))
     best_hits = []
 
     for _, row in df.iterrows():
-        for val in row:
-            val_str = str(val).strip().lower()
-            if val_str and val_str in user_input_lower:
-                best_hits.append(row.to_dict())
-                break  # stop at first match in row
+        row_vals = set(str(v).strip().lower() for v in row.values)
+        if user_words & row_vals:
+            best_hits.append(row.to_dict())
 
     if best_hits:
         results = [", ".join(f"{k}: {v}" for k, v in row.items()) for row in best_hits]
