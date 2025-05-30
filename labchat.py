@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 import pandas as pd
-import difflib
 import re
 
 # === Load API Key ===
@@ -16,12 +15,12 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 st.set_page_config(page_title="LabChat", layout="centered")
 st.title("🧿 LabChat — Your Smart Lab Assistant 🧿")
 
-# === Load built-in dataset ===
-DATASET_PATH = "data.csv"
+# === Load dataset from file ===
+DATASET_PATH = "testingtable.csv"
 try:
     df = pd.read_csv(DATASET_PATH)
     st.session_state.df = df
-    st.success("✅ Internal dataset loaded successfully.")
+    st.success("✅ Dataset loaded successfully from data.csv.")
     st.write("📊 Preview of data:", df.head())
 except Exception as e:
     st.session_state.df = None
@@ -31,10 +30,10 @@ except Exception as e:
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "system", "content": (
-            "You are LabChat — a helpful assistant trained to answer questions and analyze workplace data. "
-            "You also have access to a built-in dataset. "
-            "If the user mentions any value or column from the dataset, return the rest of the row that matches. "
-            "Otherwise, reply using general AI knowledge."
+            "You are LabChat — a helpful assistant with access to a built-in dataset. "
+            "If the user asks for information involving column names or values, "
+            "search the dataset and return the full matching rows. "
+            "If nothing matches, respond normally using general knowledge."
         )}
     ]
 
@@ -43,18 +42,13 @@ for msg in st.session_state.messages[1:]:
     speaker = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
     st.markdown(f"**{speaker}:** {msg['content']}")
 
-# === Download full chat as .txt ===
+# === Download chat history ===
 if len(st.session_state.messages) > 1:
     chat_text = "\n".join([
         f"You: {m['content']}" if m["role"] == "user" else f"Bot: {m['content']}"
         for m in st.session_state.messages[1:]
     ])
-    st.download_button(
-        label="📥 Download Chat History",
-        data=chat_text,
-        file_name="chat_history.txt",
-        mime="text/plain"
-    )
+    st.download_button("📥 Download Chat History", chat_text, file_name="chat_history.txt", mime="text/plain")
 
 # === Chat input field ===
 prompt = st.chat_input("Ask me something")
