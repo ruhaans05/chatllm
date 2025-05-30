@@ -43,14 +43,18 @@ for msg in st.session_state.messages[1:]:
     speaker = "🧑 You" if msg["role"] == "user" else "🤖 Bot"
     st.markdown(f"**{speaker}:** {msg['content']}")
 
-# === Chat history export ===
+# === Download full chat as .txt ===
 if len(st.session_state.messages) > 1:
-    if st.button("📥 Download Chat History"):
-        chat_text = "\n".join([
-            f"You: {m['content']}" if m["role"] == "user" else f"Bot: {m['content']}"
-            for m in st.session_state.messages[1:]
-        ])
-        st.download_button("Save as .txt", chat_text, file_name="chat_history.txt")
+    chat_text = "\n".join([
+        f"You: {m['content']}" if m["role"] == "user" else f"Bot: {m['content']}"
+        for m in st.session_state.messages[1:]
+    ])
+    st.download_button(
+        label="📥 Download Chat History",
+        data=chat_text,
+        file_name="chat_history.txt",
+        mime="text/plain"
+    )
 
 # === Chat input field ===
 prompt = st.chat_input("Ask me something")
@@ -58,7 +62,7 @@ if prompt:
     st.session_state.pending_user_input = prompt
     st.rerun()
 
-# === Dataset search function ===
+# === Dataset lookup logic ===
 def try_dataset_lookup(user_input):
     df = st.session_state.get("df", None)
     if df is None:
@@ -81,7 +85,7 @@ def try_dataset_lookup(user_input):
         return "\n\n".join(results)
     return None
 
-# === Process message ===
+# === Process user message ===
 if "pending_user_input" in st.session_state:
     user_message = st.session_state.pending_user_input
     st.session_state.messages.append({"role": "user", "content": user_message})
