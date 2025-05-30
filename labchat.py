@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 import pandas as pd
-import re
 
 # === Load API Key ===
 env_path = Path(__file__).resolve().parent / ".env"
@@ -20,7 +19,7 @@ DATASET_PATH = "testingtable.csv"
 try:
     df = pd.read_csv(DATASET_PATH)
     st.session_state.df = df
-    st.success("✅ Dataset loaded successfully from data.csv.")
+    st.success("✅ Dataset loaded successfully from testingtable.csv.")
     st.write("📊 Preview of data:", df.head())
 except Exception as e:
     st.session_state.df = None
@@ -31,7 +30,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "system", "content": (
             "You are LabChat — a helpful assistant with access to a built-in dataset. "
-            "If the user asks for information involving column names or values, "
+            "If the user asks for information involving values in the dataset, "
             "search the dataset and return the full matching rows. "
             "If nothing matches, respond normally using general knowledge."
         )}
@@ -62,21 +61,20 @@ def try_dataset_lookup(user_input):
     if df is None:
         return None
 
-    matches = re.findall(r'\b[\w.-]+\b', user_input.lower())
+    user_input_lower = user_input.lower()
     best_hits = []
 
-    for col in df.columns:
-        for word in matches:
-            col_vals = df[col].astype(str).str.lower()
-            if word in col.lower() or word in col_vals.values:
-                matched_rows = df[df[col].astype(str).str.lower() == word]
-                if not matched_rows.empty:
-                    for _, row in matched_rows.iterrows():
-                        best_hits.append(row.to_dict())
+    for _, row in df.iterrows():
+        for val in row:
+            val_str = str(val).strip().lower()
+            if val_str and val_str in user_input_lower:
+                best_hits.append(row.to_dict())
+                break  # stop at first match in row
 
     if best_hits:
         results = [", ".join(f"{k}: {v}" for k, v in row.items()) for row in best_hits]
         return "\n\n".join(results)
+
     return None
 
 # === Process user message ===
